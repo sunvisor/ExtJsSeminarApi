@@ -1,0 +1,7 @@
+app:
+    resource: '@AppBundle/Controller/'
+    type: annotation
+
+app_contact:
+    resource: "@AppBundle/Controller/ContactController.php"
+    type: annotation
