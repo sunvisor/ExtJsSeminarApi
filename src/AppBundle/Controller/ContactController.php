@@ -28,6 +28,21 @@ class ContactController extends Controller
     private $em;
 
     /**
+     * @Route("/contact/{api}/{owner}")
+     * @Method("OPTIONS")
+     * @param         $api
+     * @param         $owner
+     * @return JsonResponse
+     */
+    public function preFlightAction($api, $owner)
+    {
+        $headers = [
+            'Access-Control-Allow-Origin' => '*'
+        ];
+        return new JsonResponse([$api, $owner], 200, $headers);
+    }
+
+    /**
      * @Route("/contact/list/{owner}")
      * @Method("GET")
      * @param         $owner
