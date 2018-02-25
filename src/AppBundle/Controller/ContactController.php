@@ -37,7 +37,8 @@ class ContactController extends Controller
     public function preFlightAction($api, $owner)
     {
         $headers = [
-            'Access-Control-Allow-Origin' => '*'
+            'Access-Control-Allow-Origin' => '*',
+            'Access-Control-Allow-Headers' => 'x-requested-with'
         ];
         return new JsonResponse([$api, $owner], 200, $headers);
     }
