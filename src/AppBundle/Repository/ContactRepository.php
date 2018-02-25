@@ -4,6 +4,7 @@ namespace AppBundle\Repository;
 
 use AppBundle\Entity\Contact;
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\OptimisticLockException;
 
 /**
  * ContactRepository
@@ -24,5 +25,20 @@ class ContactRepository extends EntityRepository
         }
 
         return $ret;
+    }
+
+    public function remove($id)
+    {
+        $rec = $this->find($id);
+        if ($rec) {
+            $em = $this->getEntityManager();
+            $em->remove($rec);
+            try {
+                $em->flush();
+            } catch (OptimisticLockException $e) {
+                return false;
+            }
+        }
+        return true;
     }
 }
