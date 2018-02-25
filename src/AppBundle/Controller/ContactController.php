@@ -28,6 +28,24 @@ class ContactController extends Controller
     private $em;
 
     /**
+     * @Route("/contact/{api}/{owner}")
+     * @Method("OPTIONS")
+     * @param         $api
+     * @param         $owner
+     * @return JsonResponse
+     */
+    public function preFlightAction($api, $owner)
+    {
+        $method = $api === 'list' || $api === 'read' ? 'GET' : 'POST';
+        $headers = [
+            'Access-Control-Allow-Origin' => '*',
+            'Access-Control-Allow-Headers' => 'x-requested-with, content-type',
+            'Access-Control-Allow-Methods' => $method
+        ];
+        return new JsonResponse([$api, $owner], 200, $headers);
+    }
+
+    /**
      * @Route("/contact/list/{owner}")
      * @Method("GET")
      * @param         $owner
@@ -75,7 +93,7 @@ class ContactController extends Controller
      */
     public function createAction($owner, Request $request)
     {
-        $params = $request->request->all();
+        $params = json_decode($request->getContent(), true);
 
         $params['owner'] = $owner;
         $this->contactRepository();
@@ -107,7 +125,7 @@ class ContactController extends Controller
      */
     public function updateAction($owner, Request $request)
     {
-        $params = $request->request->all();
+        $params = json_decode($request->getContent(), true);
         $this->checkParams($params, ['id']);
 
         $rep = $this->contactRepository();
@@ -138,6 +156,40 @@ class ContactController extends Controller
     }
 
     /**
+     * @Route("/contact/remove/{owner}")
+     * @Method("POST")
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function removeAction($owner, Request $request)
+    {
+        $params = json_decode($request->getContent(), true);
+        $this->checkParams($params, ['id']);
+
+        $rep = $this->contactRepository();
+
+        /** @var Contact $rec */
+        $rec = $rep->find($params['id']);
+        if (!$rec) {
+            return $this->createResponse($this->failureResult('not found'));
+        } else if ($rec->getOwner() !== $owner) {
+            return $this->createResponse($this->failureResult('not found'));
+        }
+
+        $ret = $rep->remove($params['id']);
+        if ($ret) {
+            return $this->createResponse(
+                $this->successResult(
+                    ['id' => $params['id']]
+                )
+            );
+        }
+        return $this->createResponse(
+            $this->failureResult('削除に失敗しました')
+        );
+    }
+
+    /**
      * @param array $params
      * @param array $requiredParams
      */
@@ -145,7 +197,7 @@ class ContactController extends Controller
     {
         foreach ($requiredParams as $requiredParam) {
             if (!isset($params[$requiredParam])) {
-                throw new HttpException(400, "parameter 'owner' is required");
+                throw new HttpException(400, "parameter '{$requiredParam}' is required");
             }
         }
     }
