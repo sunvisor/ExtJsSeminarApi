@@ -158,6 +158,7 @@ class ContactController extends Controller
     /**
      * @Route("/contact/remove/{owner}")
      * @Method("POST")
+     * @param         $owner
      * @param Request $request
      * @return JsonResponse
      */
