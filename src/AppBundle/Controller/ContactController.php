@@ -248,13 +248,19 @@ class ContactController extends Controller
                 'ward' => $item[5]
             ];
         }
+        $r = null;
         if (isset($params['id'])) {
             $id = $params['id'];
-            $ret = array_filter($ret, function($item) use ($id) {
-                return $item['id'] == $id;
-            });
+            foreach ($ret as $item) {
+                if ($id == $item['id']) {
+                    $r = $item;
+                }
+            }
         }
-        return $this->createResponse($this->successResult($ret));
+        if ($r) {
+            return $this->createResponse($this->successResult($r));
+        }
+        return $this->createResponse($this->failureResult('not found'));
     }
 
     /**
@@ -290,7 +296,7 @@ class ContactController extends Controller
     private function failureResult($message)
     {
         return [
-            'success' => true,
+            'success' => false,
             'message' => $message
         ];
     }
