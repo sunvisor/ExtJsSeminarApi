@@ -310,15 +310,18 @@ class ContactController extends Controller
         if ($root === 'root') {
             $data = $this->treeData[0];
             $index = 1;
+            $leaf = false;
         } else {
             $index = $root * 100 + 1;
             $data = $this->treeData[$root];
+            $leaf = true;
         }
         $ret = [];
         foreach ($data as $datum) {
             $ret[] = [
                 'id'   => $index++,
-                'text' => $datum
+                'text' => $datum,
+                'leaf' => $leaf
             ];
         }
 
