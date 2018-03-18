@@ -14,6 +14,7 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\OptimisticLockException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use SplFileObject;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -239,12 +240,12 @@ class ContactController extends Controller
         $ret = [];
         foreach ($this->population as $item) {
             $ret[] = [
-                'id' => $item[0],
+                'id'         => $item[0],
                 'population' => $item[1],
-                'area' => $item[2],
-                'density' => $item[3],
-                'city' => $item[4],
-                'ward' => $item[5]
+                'area'       => $item[2],
+                'density'    => $item[3],
+                'city'       => $item[4],
+                'ward'       => $item[5]
             ];
         }
         if (isset($params['id'])) {
@@ -262,6 +263,51 @@ class ContactController extends Controller
             return $this->createResponse($this->successResult($ret));
         }
         return $this->createResponse($this->failureResult('not found'));
+    }
+
+    /**
+     * @Route("/customer/list")
+     * @Method("GET")
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function customers(Request $request)
+    {
+        $filePath = __DIR__ . '/personal_infomation.csv';
+        $file = new SplFileObject($filePath);
+        $file->setFlags(SplFileObject::READ_CSV);
+        $title = true;
+        $records = [];
+        foreach ($file as $line) {
+            if ($title) {
+                $title = false; 
+                continue;
+            }
+            if (is_null($line[0])) continue;
+                
+            $records[] = [
+                'id'          => $line[0], //連番
+                'lastName'    => $line[1], //姓
+                'firstName'   => $line[2], // 名
+                'lastKana'    => $line[3], // 姓（カタカナ）
+                'firstKana'   => $line[4], // 名（カタカナ）
+                'gender'      => $line[5], // 性別
+                'phone'       => $line[6], // 電話番号
+                'email'       => $line[7], // メールアドレス
+                'zip'         => $line[8], // 郵便番号
+                'pref'        => $line[9], // 住所
+                'city'        => $line[10], //
+                'address1'    => $line[11], //
+                'address2'    => $line[12], //
+                'address3'    => $line[13], //
+                'dateOfBirth' => $line[14], // 生年月日
+                'age'         => $line[15], // 年齢
+                'birthplace'  => $line[16], // 出身地
+                'bloodType'   => $line[17], // 血液型
+            ];
+        }
+
+        return $this->createResponse($this->successResult($records));
     }
 
     /**
