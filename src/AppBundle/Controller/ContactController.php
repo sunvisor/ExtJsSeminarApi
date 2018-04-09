@@ -267,6 +267,22 @@ class ContactController extends Controller
 
     /**
      * @Route("/customer/list")
+     * @Method("OPTIONS")
+     * @return JsonResponse
+     */
+    public function preFlightAction3()
+    {
+        $method = 'GET';
+        $headers = [
+            'Access-Control-Allow-Origin'  => '*',
+            'Access-Control-Allow-Headers' => 'x-requested-with, content-type',
+            'Access-Control-Allow-Methods' => $method
+        ];
+        return new JsonResponse(['customer'], 200, $headers);
+    }
+
+    /**
+     * @Route("/customer/list")
      * @Method("GET")
      * @param Request $request
      * @return JsonResponse
